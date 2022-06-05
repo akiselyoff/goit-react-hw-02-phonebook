@@ -1,0 +1,11 @@
+.buttonFeedback {
+    margin: 0 5px;
+    border-radius: %;
+}
+
+
+.buttonFeedback:hover,
+.buttonFeedback:focus {
+    background-color: blue;
+    color: white;
+}
