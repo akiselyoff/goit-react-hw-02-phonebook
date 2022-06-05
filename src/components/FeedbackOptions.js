@@ -1,7 +1,7 @@
 import React from 'react';
 
-const FeedbackOptions = ({ option, onLeaveFeedback }) => {
-  return option.map(button => {
+const FeedbackOptions = ({ options, onLeaveFeedback }) => {
+  return options.map(button => {
     return (
       <button
         key={button}
