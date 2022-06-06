@@ -30,17 +30,38 @@ class App extends Component {
   };
 
   formSubmit = ({ name, number }) => {
-    const newContact = {
-      id: nanoid(),
-      name,
-      number,
-    };
-    this.setState(prevState => ({
-      contacts: [newContact, ...prevState.contacts],
-    }));
+    this.setState(prevState => {
+      const { contacts } = prevState;
+      const isContact = contacts.find(contact => contact.name === name);
+
+      if (isContact) {
+        alert(`${name} is already in contact`);
+        return contacts;
+      } else {
+        return {
+          contacts: [
+            {
+              id: nanoid(),
+              name,
+              number,
+            },
+            ...contacts,
+          ],
+        };
+      }
+    });
+  };
+
+  contactDelete = id => {
+    this.setState(prevState => {
+      const { contacts } = prevState;
+      const contactsAfterDelete = contacts.filter(contact => contact.id !== id);
+      return { contacts: [...contactsAfterDelete] };
+    });
   };
 
   render() {
+    const { filter } = this.state;
     return (
       <div
         style={{
@@ -58,12 +79,13 @@ class App extends Component {
           <Filter
             title="Find contact by name"
             onChange={this.handleFilterChange}
-            value={this.state.filter}
+            value={filter}
           />
 
           <ContactList
             onFilter={this.filteredContacts}
-            filter={this.state.filter}
+            filteredContacts={this.filteredContacts(filter)}
+            onDelete={this.contactDelete}
           />
         </div>
       </div>
