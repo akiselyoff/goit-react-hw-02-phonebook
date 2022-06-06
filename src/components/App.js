@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import { nanoid } from 'nanoid';
+import ContactForm from './ContactForm/ContactForm';
+import Filter from './Filter/Filter';
+import ContactList from './ContactList/ContactList';
 
 class App extends Component {
   state = {
@@ -10,13 +13,6 @@ class App extends Component {
       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
     ],
     filter: '',
-    name: '',
-    number: '',
-  };
-
-  handleInputChange = e => {
-    const { name, value } = e.currentTarget;
-    this.setState({ [name]: value });
   };
 
   handleFilterChange = e => {
@@ -24,28 +20,24 @@ class App extends Component {
     this.setState({ [name]: value });
   };
 
-  filteredContacts(value) {
-    return this.state.contacts.filter(contact => {
-      const filterNormalize = value.toLowerCase();
-      return contact.name.toLowerCase().includes(filterNormalize);
-    });
-  }
+  filteredContacts = value => {
+    const filterNormalize = value.toLowerCase();
+    return this.state.contacts
+      .filter(contact => {
+        return contact.name.toLowerCase().includes(filterNormalize);
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  };
 
-  handleSubmit = e => {
-    e.preventDefault();
-    const { name, number } = e.target.elements;
-
-    this.setState(prevState => {
-      const newContact = {
-        id: nanoid(),
-        name: name.value,
-        number: number.value,
-      };
-
-      const listOfContacts = [...prevState.contacts];
-      listOfContacts.push(newContact);
-      return { contacts: listOfContacts, name: '', number: '' };
-    });
+  formSubmit = ({ name, number }) => {
+    const newContact = {
+      id: nanoid(),
+      name,
+      number,
+    };
+    this.setState(prevState => ({
+      contacts: [newContact, ...prevState.contacts],
+    }));
   };
 
   render() {
@@ -59,54 +51,20 @@ class App extends Component {
           flexDirection: 'column',
         }}
       >
-        <form action="submit" onSubmit={this.handleSubmit}>
-          <label>
-            Name
-            <input
-              type="text"
-              name="name"
-              pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-              title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-              required
-              value={this.state.name}
-              onChange={this.handleInputChange}
-            />
-          </label>
-          <label>
-            Number
-            <input
-              type="tel"
-              name="number"
-              pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-              title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-              required
-              value={this.state.number}
-              onChange={this.handleInputChange}
-            />
-          </label>
-          <button type="submit">Add contact</button>
-        </form>
+        <h1>Phone Book</h1>
+        <ContactForm onSubmit={this.formSubmit} />
         <div>
           <h2>Contacts</h2>
-          <label>
-            Find contact
-            <input
-              type="text"
-              name="filter"
-              value={this.state.filter}
-              onChange={this.handleFilterChange}
-            />
-          </label>
-          <ul>
-            {this.filteredContacts(this.state.filter).map(contact => {
-              return (
-                <li key={contact.id}>
-                  <p>{contact.name}</p>
-                  <p>{contact.number}</p>
-                </li>
-              );
-            })}
-          </ul>
+          <Filter
+            title="Find contact by name"
+            onChange={this.handleFilterChange}
+            value={this.state.filter}
+          />
+
+          <ContactList
+            onFilter={this.filteredContacts}
+            filter={this.state.filter}
+          />
         </div>
       </div>
     );
